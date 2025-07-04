@@ -1,0 +1,266 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* WageHound Color Palette */
+  --color-primary: #F8E8FA;      /* pastel pink */
+  --color-secondary: #B0E0FF;    /* pastel blue */
+  --color-accent: #FFE0B3;       /* pastel yellow */
+  --color-paid: #8ED99E;         /* paid green */
+  --color-alert: #FF8A8A;        /* alert red */
+  
+  /* shadcn/ui variables */
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.96 0.04 324);        /* Use our pastel pink */
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.89 0.06 228);      /* Use our pastel blue */
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.93 0.08 85);          /* Use our pastel yellow */
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.77 0.15 22);     /* Use our alert red */
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.96 0.04 324);
+  --sidebar-primary-foreground: oklch(0.205 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
+  --color-paid: var(--color-paid);
+  --color-alert: var(--color-alert);
+  --font-sans: 'Quicksand', var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  
+  /* shadcn/ui color mappings */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.96 0.04 324);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Quicksand', sans-serif;
+  }
+}
+
+/* CSS blend-mode overlay for crayon effect */
+.crayon-effect {
+  mix-blend-mode: overlay;
+}
+
+/* React Calendar custom styling */
+.react-calendar {
+  width: 100%;
+  max-width: 100%;
+  background: white;
+  border: 1px solid rgb(var(--color-border));
+  font-family: 'Quicksand', sans-serif;
+  line-height: 1.125em;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.react-calendar button {
+  margin: 0;
+  border: 0;
+  outline: none;
+}
+
+.react-calendar button:enabled:hover,
+.react-calendar button:enabled:focus {
+  background-color: var(--color-primary);
+}
+
+.react-calendar__navigation {
+  display: flex;
+  height: 44px;
+  margin-bottom: 1em;
+  background: rgb(var(--color-muted));
+  border-bottom: 1px solid rgb(var(--color-border));
+}
+
+.react-calendar__navigation button {
+  min-width: 44px;
+  background: none;
+  font-weight: 600;
+  color: rgb(var(--color-foreground));
+}
+
+.react-calendar__navigation button:disabled {
+  background-color: rgb(var(--color-muted));
+  color: rgb(var(--color-muted-foreground));
+}
+
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+  background-color: var(--color-primary);
+}
+
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.75em;
+  color: rgb(var(--color-muted-foreground));
+  background: rgb(var(--color-muted));
+  border-bottom: 1px solid rgb(var(--color-border));
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  padding: 0.5em;
+}
+
+.react-calendar__month-view__weekNumbers .react-calendar__tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75em;
+  font-weight: 600;
+  color: rgb(var(--color-muted-foreground));
+  background: rgb(var(--color-muted));
+  border-right: 1px solid rgb(var(--color-border));
+}
+
+.react-calendar__month-view__days__day--weekend {
+  color: var(--color-alert);
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: rgb(var(--color-muted-foreground));
+}
+
+.react-calendar__year-view .react-calendar__tile,
+.react-calendar__decade-view .react-calendar__tile,
+.react-calendar__century-view .react-calendar__tile {
+  padding: 2em 0.5em;
+}
+
+.react-calendar__tile {
+  max-width: 100%;
+  padding: 0.75em 0.5em;
+  background: none;
+  text-align: center;
+  line-height: 16px;
+  font-weight: 500;
+  color: rgb(var(--color-foreground));
+  border: 1px solid transparent;
+  position: relative;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.react-calendar__tile:disabled {
+  background-color: rgb(var(--color-muted));
+  color: rgb(var(--color-muted-foreground));
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.react-calendar__tile--now {
+  background: var(--color-secondary);
+  color: rgb(var(--color-foreground));
+  font-weight: 600;
+}
+
+.react-calendar__tile--now:enabled:hover,
+.react-calendar__tile--now:enabled:focus {
+  background: var(--color-primary);
+}
+
+.react-calendar__tile--hasActive {
+  background: var(--color-accent);
+}
+
+.react-calendar__tile--hasActive:enabled:hover,
+.react-calendar__tile--hasActive:enabled:focus {
+  background: var(--color-primary);
+}
+
+.react-calendar__tile--active {
+  background: var(--color-primary);
+  color: rgb(var(--color-foreground));
+  font-weight: 600;
+  border-color: var(--color-primary);
+}
+
+.react-calendar__tile--active:enabled:hover,
+.react-calendar__tile--active:enabled:focus {
+  background: var(--color-primary);
+}

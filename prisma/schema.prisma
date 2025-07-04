@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  created_at DateTime @default(now())
+  shifts     shifts[]
+  paychecks  paychecks[]
+}
+
+model shifts {
+  id           String    @id @default(cuid())
+  user_id      String
+  date         DateTime
+  start_time   DateTime?
+  end_time     DateTime?
+  hours        Decimal?  @db.Decimal(5,2)
+  wage_rate    Decimal   @default(0) @db.Decimal(6,2)
+  tips_cashout Decimal   @default(0) @db.Decimal(8,2)
+  shift_type   ShiftType
+  user         users     @relation(fields: [user_id], references: [id])
+}
+
+model paychecks {
+  id           String   @id @default(cuid())
+  user_id      String
+  period_start DateTime
+  period_end   DateTime
+  wages_paid   Decimal  @db.Decimal(10,2)
+  tips_paid    Decimal  @db.Decimal(10,2)
+  received_at  DateTime
+  user         users    @relation(fields: [user_id], references: [id])
+}
+
+enum ShiftType {
+  HOURLY_PLUS_TIPS
+  TIPS_ONLY
+}
