@@ -1,7 +1,29 @@
 import { type NextRequest, NextResponse } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  // Temporarily disable auth middleware to get basic app working
+  const { pathname } = request.nextUrl
+  
+  // Allow access to auth pages, API routes, and static files
+  if (
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/signup') ||
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/favicon.ico') ||
+    pathname.startsWith('/manifest.json') ||
+    pathname.startsWith('/sw.js') ||
+    pathname.startsWith('/icons/')
+  ) {
+    return NextResponse.next()
+  }
+  
+  // Check for session cookie
+  const sessionCookie = request.cookies.get('wagehound-session')
+  
+  if (!sessionCookie) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+  
   return NextResponse.next()
 }
 

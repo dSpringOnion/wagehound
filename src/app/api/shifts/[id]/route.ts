@@ -4,15 +4,16 @@ import { prisma } from '@/lib/prisma'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const user = await requireAuth()
     const body = await request.json()
 
     const shift = await prisma.shift.update({
       where: { 
-        id: params.id,
+        id: id,
         user_id: user.id, // Ensure user owns this shift
       },
       data: {
@@ -32,14 +33,15 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const user = await requireAuth()
 
     await prisma.shift.delete({
       where: { 
-        id: params.id,
+        id: id,
         user_id: user.id, // Ensure user owns this shift
       },
     })

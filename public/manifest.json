@@ -7,14 +7,9 @@
   "background_color": "#FFFFFF",
   "icons": [
     {
-      "src": "/icons/money-paw-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/money-paw-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "/icons/money-paw.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
     }
   ]
 }
