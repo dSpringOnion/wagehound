@@ -13,13 +13,28 @@ const server = http.createServer((req, res) => {
   const uptime = Math.floor((Date.now() - startTime) / 1000);
   
   console.log(`📥 Request #${requestCount}: ${req.method} ${req.url}`);
+  console.log(`📋 Headers:`, JSON.stringify(req.headers, null, 2));
+  console.log(`🔗 Remote IP: ${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`);
   
+  // Handle health check
   if (req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.writeHead(200, { 
+      'Content-Type': 'text/plain',
+      'X-Health-Check': 'OK',
+      'Cache-Control': 'no-cache'
+    });
     res.end('OK');
     console.log(`✅ Health check response sent (uptime: ${uptime}s)`);
     return;
   }
+  
+  // Handle root and all other requests
+  console.log(`🌍 Handling request for: ${req.url}`);
+  
+  // Add CORS headers for any potential issues
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   res.writeHead(200, { 'Content-Type': 'text/html' });
   res.end(`
