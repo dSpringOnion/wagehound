@@ -18,6 +18,17 @@ interface Paycheck {
   received_at: string
 }
 
+interface Shift {
+  id: string
+  date: string
+  start_time: string | null
+  end_time: string | null
+  hours: number | null
+  wage_rate: number
+  tips_cashout: number
+  shift_type: 'HOURLY_PLUS_TIPS' | 'TIPS_ONLY'
+}
+
 interface PaycheckWithShifts extends Paycheck {
   expectedWages: number
   expectedTips: number
@@ -44,32 +55,32 @@ export function PaychecksList({ userId }: PaychecksListProps) {
       if (!paychecksResponse.ok) {
         throw new Error('Failed to fetch paychecks')
       }
-      const paychecksData = await paychecksResponse.json()
+      const paychecksData: Paycheck[] = await paychecksResponse.json()
 
       // Fetch all shifts for the user
       const shiftsResponse = await fetch('/api/shifts')
       if (!shiftsResponse.ok) {
         throw new Error('Failed to fetch shifts')
       }
-      const shiftsData = await shiftsResponse.json()
+      const shiftsData: Shift[] = await shiftsResponse.json()
 
       // Calculate expected earnings for each paycheck period
-      const paychecksWithShifts: PaycheckWithShifts[] = (paychecksData || []).map(paycheck => {
+      const paychecksWithShifts: PaycheckWithShifts[] = (paychecksData || []).map((paycheck: Paycheck) => {
         const periodStart = parseISO(paycheck.period_start)
         const periodEnd = parseISO(paycheck.period_end)
 
         // Find shifts within the paycheck period
-        const periodShifts = (shiftsData || []).filter(shift => {
+        const periodShifts = (shiftsData || []).filter((shift: Shift) => {
           const shiftDate = parseISO(shift.date)
           return shiftDate >= periodStart && shiftDate <= periodEnd
         })
 
         // Calculate expected wages and tips
-        const expectedWages = periodShifts.reduce((sum, shift) => {
+        const expectedWages = periodShifts.reduce((sum: number, shift: Shift) => {
           return sum + ((shift.hours || 0) * shift.wage_rate)
         }, 0)
 
-        const expectedTips = periodShifts.reduce((sum, shift) => {
+        const expectedTips = periodShifts.reduce((sum: number, shift: Shift) => {
           return sum + shift.tips_cashout
         }, 0)
 
