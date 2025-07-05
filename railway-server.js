@@ -10,6 +10,22 @@ const http = require('http');
 // Create server with proper Railway Docker handling
 const server = http.createServer((req, res) => {
   console.log(`📥 ${req.method} ${req.url} from ${req.headers['x-forwarded-for'] || req.connection.remoteAddress}`);
+  console.log(`🔍 User-Agent: ${req.headers['user-agent']}`);
+  console.log(`🔍 Host: ${req.headers.host}`);
+  
+  // Set Railway-friendly headers immediately
+  res.setHeader('X-Powered-By', 'WageHound-Railway');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  // Handle preflight OPTIONS requests
+  if (req.method === 'OPTIONS') {
+    res.writeHead(200);
+    res.end();
+    console.log('✅ OPTIONS preflight response sent');
+    return;
+  }
   
   // Handle health checks specifically
   if (req.url === '/health') {
@@ -19,11 +35,38 @@ const server = http.createServer((req, res) => {
     return;
   }
   
+  // Handle root path with HTML
+  if (req.url === '/' || req.url === '/index.html') {
+    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.end(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>WageHound - Railway Success</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+      </head>
+      <body style="font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5;">
+        <h1 style="color: #333;">🎉 WageHound Successfully Deployed!</h1>
+        <p style="color: #666; font-size: 18px;">Your application is running on Railway.</p>
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3>Server Status:</h3>
+          <p><strong>Time:</strong> ${new Date().toISOString()}</p>
+          <p><strong>Node:</strong> ${process.version}</p>
+          <p><strong>Platform:</strong> ${process.platform}</p>
+          <p><strong>Port:</strong> ${process.env.PORT}</p>
+        </div>
+        <a href="/health" style="background: #0066cc; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Health Check</a>
+      </body>
+      </html>
+    `);
+    console.log('✅ HTML root response sent');
+    return;
+  }
+  
   // Handle all other requests
   res.writeHead(200, { 
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'X-Powered-By': 'WageHound-Railway'
+    'Content-Type': 'application/json'
   });
   
   const response = {
