@@ -15,7 +15,7 @@ export default async function DashboardPage() {
   ]
 
   const weekEarnings = 500.25
-  const discrepancyCount = 0
+  const discrepancyCount: number = 0
 
   return (
     <div className="space-y-8">
@@ -73,10 +73,10 @@ export default async function DashboardPage() {
             {discrepancyCount > 0 ? (
               <>
                 <Badge variant="destructive" className="mb-2 bg-alert/20 text-alert border-alert/30">
-                  {discrepancyCount} Discrepanc{discrepancyCount === 1 ? 'y' : 'ies'}
+                  {discrepancyCount} Discrepanc{discrepancyCount !== 1 ? 'ies' : 'y'}
                 </Badge>
                 <p className="text-muted-foreground text-sm">
-                  {discrepancyCount} paycheck{discrepancyCount === 1 ? '' : 's'} with discrepancies found.
+                  {discrepancyCount} paycheck{discrepancyCount !== 1 ? 's' : ''} with discrepancies found.
                 </p>
               </>
             ) : (
