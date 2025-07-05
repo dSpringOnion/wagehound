@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" fill="#F8E8FA"/>
+  <g fill="#B0E0FF" stroke="#FFE0B3" stroke-width="8">
+    <!-- Paw pad -->
+    <ellipse cx="256" cy="320" rx="80" ry="60"/>
+    <!-- Toes -->
+    <ellipse cx="180" cy="220" rx="35" ry="45"/>
+    <ellipse cx="230" cy="180" rx="35" ry="45"/>
+    <ellipse cx="282" cy="180" rx="35" ry="45"/>
+    <ellipse cx="332" cy="220" rx="35" ry="45"/>
+  </g>
+  <text x="256" y="440" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="#333">WageHound</text>
+</svg>
