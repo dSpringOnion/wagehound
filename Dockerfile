@@ -1,27 +1,27 @@
-# Use Node.js 18 LTS
+# Use Node.js 18 LTS - Railway Docker Build v2
 FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml* ./
+# Copy package files first for better caching
+COPY package.json ./
 
-# Install pnpm and dependencies
-RUN npm install -g pnpm@9.2.0
-RUN pnpm install --frozen-lockfile
+# Install dependencies with npm (simpler than pnpm for Railway)
+RUN npm install --only=production
 
-# Copy source code
-COPY . .
+# Copy the server file
+COPY server.js ./
 
-# Build the application (for now just a placeholder)
-RUN npm run build
+# Create a simple health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "http.get('http://localhost:'+process.env.PORT+'/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })" || exit 1
 
-# Expose port
-EXPOSE 3000
+# Expose the port that Railway will assign
+EXPOSE 8080
 
 # Set environment
 ENV NODE_ENV=production
 
-# Start the application
-CMD ["npm", "start"]
+# Start the server directly (no npm)
+CMD ["node", "server.js"]
