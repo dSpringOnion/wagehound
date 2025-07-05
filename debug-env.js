@@ -77,6 +77,8 @@ server.listen(port, host, (error) => {
     process.exit(1);
   }
   console.log(`🎉 SUCCESS! Server is running on ${host}:${port}`);
+  console.log(`🌐 Try accessing: http://${host}:${port}/health`);
+  console.log(`🌐 Try accessing: http://${host}:${port}/`);
 });
 
 // Global error handlers
@@ -106,3 +108,22 @@ process.on('SIGINT', () => {
 });
 
 console.log('🔄 Server setup complete, waiting for connections...');
+
+// Send a test request to ourselves to verify the server works
+setTimeout(() => {
+  console.log('🧪 Testing server with self-request...');
+  const testReq = http.request({
+    hostname: 'localhost',
+    port: port,
+    path: '/health',
+    method: 'GET'
+  }, (res) => {
+    console.log('✅ Self-test successful, status:', res.statusCode);
+  });
+  
+  testReq.on('error', (err) => {
+    console.log('❌ Self-test failed:', err.message);
+  });
+  
+  testReq.end();
+}, 1000);
