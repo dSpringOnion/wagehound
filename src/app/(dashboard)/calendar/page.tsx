@@ -23,7 +23,7 @@ export default async function CalendarPage() {
           <CardTitle>Your Work Schedule</CardTitle>
         </CardHeader>
         <CardContent>
-          <CalendarView />
+          <CalendarView userId={user.id} />
         </CardContent>
       </Card>
     </div>

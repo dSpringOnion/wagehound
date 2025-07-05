@@ -26,7 +26,7 @@ export default async function ReportsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ReportsView />
+          <ReportsView userId={user.id} />
         </CardContent>
       </Card>
     </div>

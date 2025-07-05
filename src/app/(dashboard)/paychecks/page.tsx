@@ -28,7 +28,7 @@ export default async function PaychecksPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <PaychecksList />
+          <PaychecksList userId={user.id} />
         </CardContent>
       </Card>
     </div>
