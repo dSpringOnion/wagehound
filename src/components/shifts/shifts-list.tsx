@@ -28,7 +28,7 @@ export function ShiftsList() {
     try {
       const response = await fetch('/api/shifts')
       if (response.ok) {
-        const data = await response.json()
+        const data: Shift[] = await response.json()
         setShifts(data || [])
       } else {
         throw new Error('Failed to fetch shifts')

@@ -37,7 +37,7 @@ export function CalendarView({ userId }: CalendarViewProps) {
       if (!response.ok) {
         throw new Error('Failed to fetch shifts')
       }
-      const data = await response.json()
+      const data: Shift[] = await response.json()
       setShifts(data || [])
     } catch (error) {
       console.error('Error fetching shifts:', error)
