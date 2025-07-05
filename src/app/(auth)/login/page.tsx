@@ -15,24 +15,10 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
 
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-
-      if (response.ok) {
-        window.location.href = '/dashboard'
-      } else {
-        const error = await response.text()
-        toast.error(error || 'Login failed')
-      }
-    } catch {
-      toast.error('Network error')
-    }
-    
-    setLoading(false)
+    // Simplified login - just redirect to dashboard for now
+    setTimeout(() => {
+      window.location.href = '/dashboard'
+    }, 1000)
   }
 
   return (

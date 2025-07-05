@@ -4,17 +4,22 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    const user = await requireAuth()
-    
-    const paychecks = await prisma.paycheck.findMany({
-      where: { user_id: user.id },
-      orderBy: { period_end: 'desc' },
-    })
+    // Return mock data for now
+    const mockPaychecks = [
+      {
+        id: '1',
+        period_start: '2024-01-01',
+        period_end: '2024-01-15',
+        wages_paid: 1240.00,
+        tips_paid: 567.50,
+        received_at: '2024-01-17'
+      }
+    ]
 
-    return NextResponse.json(paychecks)
+    return NextResponse.json(mockPaychecks)
   } catch (error) {
     console.error('Error fetching paychecks:', error)
-    return new NextResponse('Unauthorized', { status: 401 })
+    return new NextResponse('Internal server error', { status: 500 })
   }
 }
 

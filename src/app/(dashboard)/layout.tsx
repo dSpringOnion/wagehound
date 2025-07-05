@@ -51,15 +51,11 @@ export default async function DashboardLayout({
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onClick={async () => {
-                      await fetch('/api/auth/logout', { method: 'POST' })
-                      window.location.href = '/login'
-                    }}
-                    className="cursor-pointer"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sign out</span>
+                  <DropdownMenuItem asChild>
+                    <a href="/login" className="flex items-center">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sign out</span>
+                    </a>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
