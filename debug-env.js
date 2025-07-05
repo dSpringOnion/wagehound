@@ -109,21 +109,40 @@ process.on('SIGINT', () => {
 
 console.log('🔄 Server setup complete, waiting for connections...');
 
-// Send a test request to ourselves to verify the server works
+// Send multiple test requests to verify the server works
 setTimeout(() => {
-  console.log('🧪 Testing server with self-request...');
-  const testReq = http.request({
-    hostname: 'localhost',
+  console.log('🧪 Testing server with multiple self-requests...');
+  
+  // Test 1: Connect to 127.0.0.1 (IPv4)
+  const testReq1 = http.request({
+    hostname: '127.0.0.1',
     port: port,
     path: '/health',
     method: 'GET'
   }, (res) => {
-    console.log('✅ Self-test successful, status:', res.statusCode);
+    console.log('✅ IPv4 self-test successful, status:', res.statusCode);
   });
   
-  testReq.on('error', (err) => {
-    console.log('❌ Self-test failed:', err.message);
+  testReq1.on('error', (err) => {
+    console.log('❌ IPv4 self-test failed:', err.message);
   });
   
-  testReq.end();
-}, 1000);
+  testReq1.end();
+  
+  // Test 2: Connect to 0.0.0.0 (all interfaces)
+  const testReq2 = http.request({
+    hostname: '0.0.0.0',
+    port: port,
+    path: '/health',
+    method: 'GET'
+  }, (res) => {
+    console.log('✅ 0.0.0.0 self-test successful, status:', res.statusCode);
+  });
+  
+  testReq2.on('error', (err) => {
+    console.log('❌ 0.0.0.0 self-test failed:', err.message);
+  });
+  
+  testReq2.end();
+  
+}, 2000);
