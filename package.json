@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 3000",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start -p ${PORT:-3000}",
     "lint": "next lint --max-warnings=20",
     "format": "prettier --write .",
     "test": "vitest",
-    "migrate": "prisma migrate deploy"
+    "migrate": "prisma migrate deploy",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.10.2",
