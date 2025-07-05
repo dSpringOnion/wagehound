@@ -11,7 +11,7 @@ COPY package.json ./
 RUN npm install --only=production
 
 # Copy the server file
-COPY server.js ./
+COPY railway-server.js ./
 
 # Create a simple health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
@@ -24,4 +24,4 @@ EXPOSE 8080
 ENV NODE_ENV=production
 
 # Start the server directly (no npm)
-CMD ["node", "server.js"]
+CMD ["node", "railway-server.js"]
