@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/utils/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { EarningsChart } from './earnings-chart'
@@ -34,18 +33,15 @@ export function ReportsView({ userId }: ReportsViewProps) {
   const [filteredShifts, setFilteredShifts] = useState<Shift[]>([])
   const [timeRange, setTimeRange] = useState<TimeRange>('30d')
   const [isLoading, setIsLoading] = useState(true)
-  const supabase = createClient()
 
   const fetchShifts = useCallback(async () => {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('shifts')
-        .select('*')
-        .eq('user_id', userId)
-        .order('date', { ascending: true })
-
-      if (error) throw error
+      const response = await fetch('/api/shifts')
+      if (!response.ok) {
+        throw new Error('Failed to fetch shifts')
+      }
+      const data = await response.json()
       setShifts(data || [])
     } catch (error) {
       console.error('Error fetching shifts:', error)
@@ -53,7 +49,7 @@ export function ReportsView({ userId }: ReportsViewProps) {
     } finally {
       setIsLoading(false)
     }
-  }, [userId, supabase])
+  }, [])
 
   useEffect(() => {
     fetchShifts()

@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+import { requireAuth } from '@/lib/auth'
 import { ShiftsList } from '@/components/shifts/shifts-list'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -6,12 +6,7 @@ import { FileText, Plus } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function ShiftsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    return <div>Please log in to view your shifts</div>
-  }
+  const user = await requireAuth()
 
   return (
     <div className="space-y-6">
@@ -41,7 +36,7 @@ export default async function ShiftsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ShiftsList userId={user.id} />
+          <ShiftsList />
         </CardContent>
       </Card>
     </div>

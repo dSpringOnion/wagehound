@@ -1,15 +1,10 @@
-import { createClient } from '@/utils/supabase/server'
+import { requireAuth } from '@/lib/auth'
 import { CalendarView } from '@/components/calendar/calendar-view'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Calendar } from 'lucide-react'
 
 export default async function CalendarPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    return <div>Please log in to view your calendar</div>
-  }
+  const user = await requireAuth()
 
   return (
     <div className="space-y-6">
@@ -28,7 +23,7 @@ export default async function CalendarPage() {
           <CardTitle>Your Work Schedule</CardTitle>
         </CardHeader>
         <CardContent>
-          <CalendarView userId={user.id} />
+          <CalendarView />
         </CardContent>
       </Card>
     </div>

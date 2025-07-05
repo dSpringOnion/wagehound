@@ -1,15 +1,10 @@
-import { createClient } from '@/utils/supabase/server'
+import { requireAuth } from '@/lib/auth'
 import { PaychecksList } from '@/components/paychecks/paychecks-list'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DollarSign } from 'lucide-react'
 
 export default async function PaychecksPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    return <div>Please log in to view your paychecks</div>
-  }
+  const user = await requireAuth()
 
   return (
     <div className="space-y-6">
@@ -33,7 +28,7 @@ export default async function PaychecksPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <PaychecksList userId={user.id} />
+          <PaychecksList />
         </CardContent>
       </Card>
     </div>

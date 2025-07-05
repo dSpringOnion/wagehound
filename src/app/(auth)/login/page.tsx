@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/utils/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -11,24 +10,28 @@ import { toast } from 'sonner'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
-  const supabase = createClient()
 
-  const handleMagicLink = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
 
-    if (error) {
-      toast.error(error.message)
-    } else {
-      toast.success('Check your email for the magic link!')
+      if (response.ok) {
+        window.location.href = '/dashboard'
+      } else {
+        const error = await response.text()
+        toast.error(error || 'Login failed')
+      }
+    } catch {
+      toast.error('Network error')
     }
+    
     setLoading(false)
   }
 
@@ -43,7 +46,7 @@ export default function LoginPage() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleMagicLink} className="space-y-6">
+        <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email">Email Address</Label>
             <Input
@@ -61,12 +64,12 @@ export default function LoginPage() {
             disabled={loading || !email}
             className="w-full bg-primary hover:bg-primary/80 text-gray-900 font-medium"
           >
-            {loading ? 'Sending...' : 'Send Magic Link'}
+            {loading ? 'Signing In...' : 'Sign In'}
           </Button>
         </form>
 
         <div className="mt-6 text-center text-sm text-muted-foreground">
-          No passwords required! We&apos;ll send you a secure login link.
+          Simple email-based authentication. Enter your email to get started!
         </div>
       </CardContent>
     </Card>

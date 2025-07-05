@@ -1,15 +1,10 @@
-import { createClient } from '@/utils/supabase/server'
+import { requireAuth } from '@/lib/auth'
 import { ReportsView } from '@/components/reports/reports-view'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BarChart3 } from 'lucide-react'
 
 export default async function ReportsPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    return <div>Please log in to view your reports</div>
-  }
+  const user = await requireAuth()
 
   return (
     <div className="space-y-6">
@@ -31,7 +26,7 @@ export default async function ReportsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ReportsView userId={user.id} />
+          <ReportsView />
         </CardContent>
       </Card>
     </div>

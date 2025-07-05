@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/utils/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -36,27 +35,23 @@ export function PaychecksList({ userId }: PaychecksListProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedPaycheck, setSelectedPaycheck] = useState<Paycheck | null>(null)
-  const supabase = createClient()
 
   const fetchPaychecks = useCallback(async () => {
     setIsLoading(true)
     try {
       // Fetch paychecks
-      const { data: paychecksData, error: paychecksError } = await supabase
-        .from('paychecks')
-        .select('*')
-        .eq('user_id', userId)
-        .order('period_end', { ascending: false })
-
-      if (paychecksError) throw paychecksError
+      const paychecksResponse = await fetch('/api/paychecks')
+      if (!paychecksResponse.ok) {
+        throw new Error('Failed to fetch paychecks')
+      }
+      const paychecksData = await paychecksResponse.json()
 
       // Fetch all shifts for the user
-      const { data: shiftsData, error: shiftsError } = await supabase
-        .from('shifts')
-        .select('*')
-        .eq('user_id', userId)
-
-      if (shiftsError) throw shiftsError
+      const shiftsResponse = await fetch('/api/shifts')
+      if (!shiftsResponse.ok) {
+        throw new Error('Failed to fetch shifts')
+      }
+      const shiftsData = await shiftsResponse.json()
 
       // Calculate expected earnings for each paycheck period
       const paychecksWithShifts: PaycheckWithShifts[] = (paychecksData || []).map(paycheck => {
@@ -99,7 +94,7 @@ export function PaychecksList({ userId }: PaychecksListProps) {
     } finally {
       setIsLoading(false)
     }
-  }, [userId, supabase])
+  }, [])
 
   useEffect(() => {
     fetchPaychecks()
@@ -108,17 +103,18 @@ export function PaychecksList({ userId }: PaychecksListProps) {
   const handleDeletePaycheck = async (paycheckId: string) => {
     if (!confirm('Are you sure you want to delete this paycheck?')) return
 
-    const { error } = await supabase
-      .from('paychecks')
-      .delete()
-      .eq('id', paycheckId)
-
-    if (error) {
-      console.error('Error deleting paycheck:', error)
-      toast.error('Failed to delete paycheck')
-    } else {
+    try {
+      const response = await fetch(`/api/paychecks/${paycheckId}`, {
+        method: 'DELETE'
+      })
+      if (!response.ok) {
+        throw new Error('Failed to delete paycheck')
+      }
       toast.success('Paycheck deleted successfully')
       fetchPaychecks()
+    } catch (error) {
+      console.error('Error deleting paycheck:', error)
+      toast.error('Failed to delete paycheck')
     }
   }
 

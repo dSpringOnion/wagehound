@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { createClient } from '@/utils/supabase/client'
 import { format, startOfWeek, endOfWeek } from 'date-fns'
 import { toast } from 'sonner'
 
@@ -34,7 +33,6 @@ export function PaycheckDialog({ isOpen, onClose, onSaved, userId, paycheck }: P
   const [receivedAt, setReceivedAt] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const supabase = createClient()
 
   useEffect(() => {
     if (isOpen) {
@@ -80,7 +78,6 @@ export function PaycheckDialog({ isOpen, onClose, onSaved, userId, paycheck }: P
 
     try {
       const paycheckData = {
-        user_id: userId,
         period_start: periodStart,
         period_end: periodEnd,
         wages_paid: parseFloat(wagesPaid) || 0,
@@ -88,32 +85,36 @@ export function PaycheckDialog({ isOpen, onClose, onSaved, userId, paycheck }: P
         received_at: receivedAt,
       }
 
-      let error
-
       if (paycheck) {
         // Update existing paycheck
-        const { error: updateError } = await supabase
-          .from('paychecks')
-          .update(paycheckData)
-          .eq('id', paycheck.id)
-        error = updateError
+        const response = await fetch(`/api/paychecks/${paycheck.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(paycheckData)
+        })
+        if (!response.ok) {
+          throw new Error('Failed to update paycheck')
+        }
       } else {
         // Create new paycheck
-        const { error: insertError } = await supabase
-          .from('paychecks')
-          .insert([paycheckData])
-        error = insertError
+        const response = await fetch('/api/paychecks', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(paycheckData)
+        })
+        if (!response.ok) {
+          throw new Error('Failed to create paycheck')
+        }
       }
 
-      if (error) {
-        console.error('Error saving paycheck:', error)
-        toast.error('Failed to save paycheck. Please try again.')
-      } else {
-        toast.success(paycheck ? 'Paycheck updated successfully!' : 'Paycheck added successfully!')
-        onSaved()
-        onClose()
-        resetForm()
-      }
+      toast.success(paycheck ? 'Paycheck updated successfully!' : 'Paycheck added successfully!')
+      onSaved()
+      onClose()
+      resetForm()
     } catch (error) {
       console.error('Error saving paycheck:', error)
       toast.error('Failed to save paycheck. Please try again.')

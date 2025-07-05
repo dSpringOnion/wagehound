@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+import { requireAuth } from '@/lib/auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -6,56 +6,52 @@ import { Calendar, DollarSign, FileText, Plus, BarChart3 } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) {
-    return <div>Please log in to view your dashboard</div>
-  }
+  const user = await requireAuth()
 
   // Fetch recent shifts
-  const { data: recentShifts } = await supabase
-    .from('shifts')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('date', { ascending: false })
-    .limit(5)
+  const recentShiftsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/shifts?limit=5`, {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
+  })
+  const recentShifts = recentShiftsResponse.ok ? await recentShiftsResponse.json() : []
 
   // Calculate this week's earnings
   const now = new Date()
   const weekStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay())
-  const { data: weekShifts } = await supabase
-    .from('shifts')
-    .select('*')
-    .eq('user_id', user.id)
-    .gte('date', weekStart.toISOString().split('T')[0])
+  const weekShiftsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/shifts?start=${weekStart.toISOString().split('T')[0]}`, {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
+  })
+  const weekShifts = weekShiftsResponse.ok ? await weekShiftsResponse.json() : []
 
-  const weekEarnings = (weekShifts || []).reduce((sum, shift) => {
+  const weekEarnings = (weekShifts || []).reduce((sum: number, shift: any) => {
     const wages = (shift.hours || 0) * shift.wage_rate
     const tips = shift.tips_cashout
     return sum + wages + tips
   }, 0)
 
   // Check for paycheck discrepancies
-  const { data: paychecks } = await supabase
-    .from('paychecks')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('period_end', { ascending: false })
-    .limit(5)
+  const paychecksResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/paychecks?limit=5`, {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
+  })
+  const paychecks = paychecksResponse.ok ? await paychecksResponse.json() : []
 
   let discrepancyCount = 0
   if (paychecks) {
     for (const paycheck of paychecks) {
-      const { data: periodShifts } = await supabase
-        .from('shifts')
-        .select('*')
-        .eq('user_id', user.id)
-        .gte('date', paycheck.period_start)
-        .lte('date', paycheck.period_end)
+      const periodShiftsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/shifts?start=${paycheck.period_start}&end=${paycheck.period_end}`, {
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      })
+      const periodShifts = periodShiftsResponse.ok ? await periodShiftsResponse.json() : []
 
-      const expectedWages = (periodShifts || []).reduce((sum, shift) => sum + ((shift.hours || 0) * shift.wage_rate), 0)
-      const expectedTips = (periodShifts || []).reduce((sum, shift) => sum + shift.tips_cashout, 0)
+      const expectedWages = (periodShifts || []).reduce((sum: number, shift: any) => sum + ((shift.hours || 0) * shift.wage_rate), 0)
+      const expectedTips = (periodShifts || []).reduce((sum: number, shift: any) => sum + shift.tips_cashout, 0)
       const totalExpected = expectedWages + expectedTips
       const totalReceived = paycheck.wages_paid + paycheck.tips_paid
       

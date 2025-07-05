@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { createClient } from '@/utils/supabase/client'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
 
@@ -39,7 +38,6 @@ export function ShiftDialog({ isOpen, onClose, onSaved, userId, selectedDate, sh
   const [tipsCashout, setTipsCashout] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
-  const supabase = createClient()
 
   useEffect(() => {
     if (isOpen) {
@@ -95,7 +93,6 @@ export function ShiftDialog({ isOpen, onClose, onSaved, userId, selectedDate, sh
 
     try {
       const shiftData = {
-        user_id: userId,
         date: selectedDate.toISOString().split('T')[0],
         start_time: startTime ? `${selectedDate.toISOString().split('T')[0]}T${startTime}:00` : null,
         end_time: endTime ? `${selectedDate.toISOString().split('T')[0]}T${endTime}:00` : null,
@@ -105,31 +102,35 @@ export function ShiftDialog({ isOpen, onClose, onSaved, userId, selectedDate, sh
         shift_type: shiftType,
       }
 
-      let error
-      
       if (shift) {
         // Update existing shift
-        const { error: updateError } = await supabase
-          .from('shifts')
-          .update(shiftData)
-          .eq('id', shift.id)
-        error = updateError
+        const response = await fetch(`/api/shifts/${shift.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(shiftData)
+        })
+        if (!response.ok) {
+          throw new Error('Failed to update shift')
+        }
       } else {
         // Create new shift
-        const { error: insertError } = await supabase
-          .from('shifts')
-          .insert([shiftData])
-        error = insertError
+        const response = await fetch('/api/shifts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(shiftData)
+        })
+        if (!response.ok) {
+          throw new Error('Failed to create shift')
+        }
       }
 
-      if (error) {
-        console.error('Error saving shift:', error)
-        toast.error('Failed to save shift. Please try again.')
-      } else {
-        toast.success(shift ? 'Shift updated successfully!' : 'Shift added successfully!')
-        onSaved()
-        onClose()
-      }
+      toast.success(shift ? 'Shift updated successfully!' : 'Shift added successfully!')
+      onSaved()
+      onClose()
     } catch (error) {
       console.error('Error saving shift:', error)
       toast.error('Failed to save shift. Please try again.')

@@ -1,22 +1,20 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { getSession } from '@/lib/auth'
 
 // Force dynamic rendering for this page
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const session = await getSession()
 
-    if (user) {
+    if (session) {
       redirect('/dashboard')
     } else {
       redirect('/login')
     }
   } catch (error) {
-    console.error('Error creating Supabase client:', error)
-    // If Supabase is not configured, redirect to login
+    console.error('Error checking session:', error)
     redirect('/login')
   }
 }

@@ -1,8 +1,30 @@
-import { type NextRequest } from 'next/server'
-import { updateSession } from '@/utils/supabase/middleware'
+import { type NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  const cookieStore = await cookies()
+  const sessionId = cookieStore.get('wagehound-session')?.value
+  
+  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || 
+                     request.nextUrl.pathname.startsWith('/auth')
+  const isApiRoute = request.nextUrl.pathname.startsWith('/api/')
+  const isPublicRoute = isAuthPage || isApiRoute
+
+  // If no session and trying to access protected route, redirect to login
+  if (!sessionId && !isPublicRoute) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
+  }
+
+  // If has session and trying to access auth pages, redirect to dashboard
+  if (sessionId && isAuthPage) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {

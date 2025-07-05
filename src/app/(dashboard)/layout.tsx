@@ -1,5 +1,4 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { requireAuth } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { 
   DropdownMenu, 
@@ -17,14 +16,8 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase.auth.getUser()
-  if (error || !data?.user) {
-    redirect('/login')
-  }
-
-  const userInitials = data.user.email?.charAt(0).toUpperCase() || 'U'
+  const user = await requireAuth()
+  const userInitials = user.email?.charAt(0).toUpperCase() || 'U'
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,7 +31,7 @@ export default async function DashboardLayout({
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground hidden sm:block">
-                {data.user.email}
+                {user.email}
               </span>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -53,19 +46,21 @@ export default async function DashboardLayout({
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">Account</p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        {data.user.email}
+                        {user.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <form action="/auth/signout" method="post">
-                    <DropdownMenuItem asChild>
-                      <button type="submit" className="w-full flex items-center">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Sign out</span>
-                      </button>
-                    </DropdownMenuItem>
-                  </form>
+                  <DropdownMenuItem 
+                    onClick={async () => {
+                      await fetch('/api/auth/logout', { method: 'POST' })
+                      window.location.href = '/login'
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sign out</span>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

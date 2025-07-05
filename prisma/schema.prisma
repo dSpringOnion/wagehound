@@ -10,15 +10,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
+model User {
   id         String   @id @default(cuid())
   email      String   @unique
   created_at DateTime @default(now())
-  shifts     shifts[]
-  paychecks  paychecks[]
+  shifts     Shift[]
+  paychecks  Paycheck[]
+  sessions   Session[]
 }
 
-model shifts {
+model Session {
+  id         String   @id @default(cuid())
+  user_id    String
+  expires_at DateTime
+  created_at DateTime @default(now())
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model Shift {
   id           String    @id @default(cuid())
   user_id      String
   date         DateTime
@@ -28,10 +37,10 @@ model shifts {
   wage_rate    Decimal   @default(0) @db.Decimal(6,2)
   tips_cashout Decimal   @default(0) @db.Decimal(8,2)
   shift_type   ShiftType
-  user         users     @relation(fields: [user_id], references: [id])
+  user         User      @relation(fields: [user_id], references: [id])
 }
 
-model paychecks {
+model Paycheck {
   id           String   @id @default(cuid())
   user_id      String
   period_start DateTime
@@ -39,7 +48,7 @@ model paychecks {
   wages_paid   Decimal  @db.Decimal(10,2)
   tips_paid    Decimal  @db.Decimal(10,2)
   received_at  DateTime
-  user         users    @relation(fields: [user_id], references: [id])
+  user         User     @relation(fields: [user_id], references: [id])
 }
 
 enum ShiftType {

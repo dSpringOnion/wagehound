@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ShiftDialog } from './shift-dialog'
-import { createClient } from '@/utils/supabase/client'
 import { format, isSameDay, parseISO } from 'date-fns'
 import { Plus, Clock } from 'lucide-react'
 
@@ -32,21 +31,18 @@ export function CalendarView({ userId }: CalendarViewProps) {
   const [shifts, setShifts] = useState<Shift[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null)
-  const supabase = createClient()
-
   const fetchShifts = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('shifts')
-      .select('*')
-      .eq('user_id', userId)
-      .order('date', { ascending: false })
-
-    if (error) {
-      console.error('Error fetching shifts:', error)
-    } else {
+    try {
+      const response = await fetch('/api/shifts')
+      if (!response.ok) {
+        throw new Error('Failed to fetch shifts')
+      }
+      const data = await response.json()
       setShifts(data || [])
+    } catch (error) {
+      console.error('Error fetching shifts:', error)
     }
-  }, [userId, supabase])
+  }, [])
 
   useEffect(() => {
     fetchShifts()
@@ -98,15 +94,16 @@ export function CalendarView({ userId }: CalendarViewProps) {
   }
 
   const handleDeleteShift = async (shiftId: string) => {
-    const { error } = await supabase
-      .from('shifts')
-      .delete()
-      .eq('id', shiftId)
-
-    if (error) {
-      console.error('Error deleting shift:', error)
-    } else {
+    try {
+      const response = await fetch(`/api/shifts/${shiftId}`, {
+        method: 'DELETE'
+      })
+      if (!response.ok) {
+        throw new Error('Failed to delete shift')
+      }
       fetchShifts()
+    } catch (error) {
+      console.error('Error deleting shift:', error)
     }
   }
 

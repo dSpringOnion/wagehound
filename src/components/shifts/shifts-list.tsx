@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/utils/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -20,32 +19,26 @@ interface Shift {
   shift_type: 'HOURLY_PLUS_TIPS' | 'TIPS_ONLY'
 }
 
-interface ShiftsListProps {
-  userId: string
-}
-
-export function ShiftsList({ userId }: ShiftsListProps) {
+export function ShiftsList() {
   const [shifts, setShifts] = useState<Shift[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const supabase = createClient()
 
   const fetchShifts = useCallback(async () => {
     setIsLoading(true)
-    const { data, error } = await supabase
-      .from('shifts')
-      .select('*')
-      .eq('user_id', userId)
-      .order('date', { ascending: false })
-      .limit(20)
-
-    if (error) {
+    try {
+      const response = await fetch('/api/shifts')
+      if (response.ok) {
+        const data = await response.json()
+        setShifts(data || [])
+      } else {
+        throw new Error('Failed to fetch shifts')
+      }
+    } catch (error) {
       console.error('Error fetching shifts:', error)
       toast.error('Failed to load shifts')
-    } else {
-      setShifts(data || [])
     }
     setIsLoading(false)
-  }, [userId, supabase])
+  }, [])
 
   useEffect(() => {
     fetchShifts()
@@ -54,17 +47,20 @@ export function ShiftsList({ userId }: ShiftsListProps) {
   const handleDeleteShift = async (shiftId: string) => {
     if (!confirm('Are you sure you want to delete this shift?')) return
 
-    const { error } = await supabase
-      .from('shifts')
-      .delete()
-      .eq('id', shiftId)
+    try {
+      const response = await fetch(`/api/shifts/${shiftId}`, {
+        method: 'DELETE'
+      })
 
-    if (error) {
+      if (response.ok) {
+        toast.success('Shift deleted successfully')
+        fetchShifts()
+      } else {
+        throw new Error('Failed to delete shift')
+      }
+    } catch (error) {
       console.error('Error deleting shift:', error)
       toast.error('Failed to delete shift')
-    } else {
-      toast.success('Shift deleted successfully')
-      fetchShifts()
     }
   }
 
